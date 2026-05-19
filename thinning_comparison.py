@@ -26,15 +26,15 @@ if __name__ =='__main__':
     n_infectious=np.array(df.loc['n_infectious'])
     mobility=np.array(df.loc['mobility'])
 
-    indices = np.arange(0, len(n_infectious), frequency)
-    selected_values = n_infectious[indices]
-    new_indices = np.arange(len(n_infectious))
-    n_infectious_n = np.interp(new_indices, indices, selected_values)
+    n = len(mobility)
+    reps = mobility[::frequency]
+    mobility_n = np.repeat(reps, frequency)
 
-    indices = np.arange(0, len(mobility), frequency)
-    selected_values = mobility[indices]
-    new_indices = np.arange(len(mobility))
-    mobility_n = np.interp(new_indices, indices, selected_values)
+    reps = n_infectious[::frequency]
+    n_infectious_n = np.repeat(reps, frequency)
+
+    #print(len(n_infectious_n),len(mobility_n),len(n_hospitalized))
+    data3D=np.array([n_hospitalized, n_infectious_n[:n], mobility_n[:n]])
 
     myvar=VAR_m()
     myseir=SEIR_model()
@@ -45,9 +45,6 @@ if __name__ =='__main__':
 
     models3Dnames=[ 'VAR','SEIR Mob']
     models3D=[myvar, myseir]
-
-    #models3Dnames=[ 'VAR']
-    #models3D=[myvar]
 
     dico_wis=dict()
     for point in indexs_points:
@@ -72,12 +69,6 @@ if __name__ =='__main__':
 
         for index, model in enumerate(models3D):
                 try:
-                    m=indices[int(np.floor(point[0]/frequency))]
-                    n_infectious_np = n_infectious_n.copy()
-                    mobility_np = mobility_n.copy()
-                    n_infectious_np[m:]=n_infectious_np[m-1]
-                    mobility_np[m:]=mobility_np[m-1]
-                    data3D=np.array([n_hospitalized, n_infectious_np, mobility_np])
 
                     model.train(train_dates = [i for i in range(point[0])], data = data3D[:,:point[0]])
                     error_on_training=False
